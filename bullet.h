@@ -4,13 +4,11 @@
 #include <SDL.h>
 #include <vector>
 
-class Enemy;  // Khai báo trước để tránh lỗi circular include
+class Enemy;
 
 class Bullet {
 public:
     Bullet(int x, int y, int speedX, int speedY);
-
-    // 🛠 Sửa: Khai báo đúng hàm Update mới
     void Update(std::vector<Enemy*>& enemies);
 
     void Render(SDL_Renderer* renderer);
@@ -30,7 +28,6 @@ private:
     int WIDTH = 20;
     int HEIGHT = 20;
 
-    // 🛠 Sửa: Thêm khai báo CheckCollision đúng
     bool CheckCollision(Enemy* enemy);
 };
 

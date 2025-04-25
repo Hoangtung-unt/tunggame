@@ -13,10 +13,10 @@ class Map;
 
 class Player {
 public:
-    Player(SDL_Renderer* renderer, camera& camera);  // Thêm camera* vào constructor
+    Player(SDL_Renderer* renderer, camera& camera);
     ~Player();
 
-    void HandleInput(const Uint8* keyState, camera& cam);  // Thêm camera vào HandleInput
+    void HandleInput(const Uint8* keyState, camera& cam);
     void Update(Map* map, std::vector<Enemy*>& enemies);
 
     void Render(SDL_Renderer* renderer, SDL_Rect camera);
@@ -36,7 +36,6 @@ private:
     int x, y;
     int speed;
 
-    // Animation
     int frame;
     int frameCount;
     int frameDelay;
@@ -44,11 +43,9 @@ private:
     bool moving;
     bool facingLeft;
 
-    // Nhảy
     bool jumping;
     int jumpPower;
 
-    // Trọng lực & vận tốc Y
     int velocityY;
     bool onGround;
 

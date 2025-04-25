@@ -20,7 +20,7 @@ public:
     int GetY() const { return y; }
 
     SDL_Rect GetRect() const {
-        return { x, y, FRAME_WIDTH, FRAME_HEIGHT };  // Returns a rectangle representing the enemy
+        return { x, y, FRAME_WIDTH, FRAME_HEIGHT };
     }
 
 private:

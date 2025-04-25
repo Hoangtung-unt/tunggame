@@ -11,7 +11,6 @@ void camera::Follow(int targetX, int targetY) {
     view.x = targetX - screenW / 2;
     view.y = targetY - screenH / 2;
 
-    // Giới hạn camera không vượt khỏi bản đồ
     if (view.x < 0) view.x = 0;
     if (view.y < 0) view.y = 0;
     if (view.x > mapW - screenW) view.x = mapW - screenW;

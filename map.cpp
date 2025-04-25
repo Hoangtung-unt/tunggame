@@ -5,7 +5,7 @@
 Map::Map(SDL_Renderer* renderer) : renderer(renderer) {
     LoadTile(1, "assets/3.png");
     LoadTile(2, "assets/2.png");
-    // Thêm tile mới nếu có: LoadTile(2, "assets/water.png");
+
 
     LoadMap("assets/map.txt");
 }
@@ -37,7 +37,6 @@ void Map::Render(SDL_Rect camera) {
         for (int j = 0; j < MAP_COLS; ++j) {
             int tileID = tileMap[i][j];
 
-            // 👇 Bỏ qua nếu là tile trống (-1)
             if (tileID == 0 || tileTextures.count(tileID) == 0)
                 continue;
 
@@ -52,7 +51,7 @@ void Map::Render(SDL_Rect camera) {
 }
 int Map::GetTile(int x, int y) {
     if (x >= 0 && x < MAP_COLS && y >= 0 && y < MAP_ROWS) {
-        return tileMap[y][x];  // Trả về giá trị của tile
+        return tileMap[y][x];
     }
-    return -1;  // Nếu ngoài phạm vi, trả về giá trị mặc định là -1 (chỉ định không có tile)
+    return -1;
 }

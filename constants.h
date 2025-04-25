@@ -9,4 +9,4 @@ const int PLAYER_SPEED = 8 ;
 const int FRAME_WIDTH = 70;
 const int FRAME_HEIGHT = 80;
 
-#endif  // CONSTANTS_H
+#endif
