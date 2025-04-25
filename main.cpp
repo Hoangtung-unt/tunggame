@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
     // Tạo player và camera
     Player player(renderer);
     camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, MAP_COLS * TILE_SIZE, MAP_ROWS * TILE_SIZE);
-
     // Khởi tạo random seed và sinh enemy
     srand(static_cast<unsigned int>(time(NULL)));
     std::vector<Enemy*> enemies;
@@ -60,7 +59,7 @@ int main(int argc, char* argv[]) {
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT)
-                running = false;
+                {running = false;}
         }
 
         // Xử lý phím nhấn
@@ -72,7 +71,6 @@ int main(int argc, char* argv[]) {
         for (Enemy* enemy : enemies) {
             enemy->Update(player.GetX(), player.GetY(), &map);
         }
-
         // Kiểm tra va chạm giữa nhân vật và quái vật
         SDL_Rect playerRect = { player.GetX(), player.GetY(), PLAYER_WIDTH, PLAYER_HEIGHT };
         for (Enemy* enemy : enemies) {
@@ -83,7 +81,21 @@ int main(int argc, char* argv[]) {
                 break;
             }
         }
+        // Kiểm tra va chạm đạn và quái vật
+        for (Enemy* enemy : enemies) {
+            if (!enemy->IsAlive()) continue;
 
+            for (Bullet* bullet : player.GetBullets()) {
+                if (!bullet->IsActive()) continue;
+
+                if (CheckCollision(bullet->GetRect(), enemy->GetRect())) {
+                    enemy->SetAlive(false);
+                    bullet->Deactivate();
+                    std::cout << "💥 Enemy trúng đạn tại: (" << enemy->GetX() << ", " << enemy->GetY() << ")\n";
+                    break;
+                }
+            }
+        }
         // Cập nhật camera theo nhân vật
         camera.Follow(player.GetX(), player.GetY());
 

@@ -5,6 +5,8 @@
 #include <SDL_image.h>
 #include <string>
 #include "constants.h"
+#include "bullet.h"
+#include <vector>
 
 class Map;
 
@@ -19,6 +21,8 @@ public:
 
     int GetX() const { return x; }
     int GetY() const { return y; }
+
+    const std::vector<Bullet*>& GetBullets() const { return bullets; }
 
 private:
     SDL_Texture* textureRight;
@@ -47,6 +51,11 @@ private:
     bool onGround;
 
     void UpdateAnimation();
+
+    std::vector<Bullet*> bullets;
+    Uint32 lastShotTime;      // Thời gian bắn cuối cùng
+    Uint32 shotCooldown;      // Thời gian hồi giữa 2 lần bắn (ms)
+
 };
 
 #endif

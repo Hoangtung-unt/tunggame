@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1745588798 source:c:\c++\game\main.cpp
+1745599144 source:c:\c++\game\main.cpp
 	<SDL.h>
 	<SDL_image.h>
 	<vector>
@@ -15,7 +15,7 @@
 
 1744618429 source:c:\c++\game\commonfunc.cpp
 
-1744971252 c:\c++\game\map.h
+1745599144 c:\c++\game\map.h
 	<SDL.h>
 	<vector>
 	<string>
@@ -24,7 +24,7 @@
 1744621827 source:c:\c++\game\camera.cpp
 	"camera.h"
 
-1744969410 source:c:\c++\game\map.cpp
+1745599144 source:c:\c++\game\map.cpp
 	"map.h"
 	<fstream>
 	<SDL_image.h>
@@ -32,35 +32,36 @@
 1744621826 c:\c++\game\camera.h
 	<SDL.h>
 
-1745588680 source:c:\c++\game\player.cpp
+1745599144 source:c:\c++\game\player.cpp
 	"player.h"
 	"map.h"
 	<iostream>
 
-1745588670 c:\c++\game\player.h
+1745599175 c:\c++\game\player.h
 	<SDL.h>
 	<SDL_image.h>
 	<string>
 	"constants.h"
+	"bullet.h"
+	<vector>
 
 1745587368 c:\c++\game\constants.h
 
-1745586523 source:c:\c++\game\enermy.cpp
+1745599144 source:c:\c++\game\enermy.cpp
 	"enermy.h"
 	"map.h"
 	<iostream>
 
-1745587368 c:\c++\game\enermy.h
+1745599144 c:\c++\game\enermy.h
 	<SDL.h>
 	<SDL_image.h>
 	"constants.h"
-	<SDL.h>
 	"map.h"
 
 1745588320 source:c:\c++\game\bullet.cpp
 	"bullet.h"
 	"constants.h"
 
-1745588307 c:\c++\game\bullet.h
+1745599144 c:\c++\game\bullet.h
 	<SDL.h>
 

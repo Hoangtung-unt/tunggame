@@ -46,6 +46,9 @@ Player::Player(SDL_Renderer* renderer) {
     velocityY = 0;
     onGround = false;
     jumpPower = 15;
+
+    lastShotTime = 0;
+    shotCooldown = 300; // 300ms giữa mỗi lần bắn
 }
 
 void Player::HandleInput(const Uint8* keyState) {
@@ -55,6 +58,7 @@ void Player::HandleInput(const Uint8* keyState) {
         x += speed;
         facingLeft = false;
         moving = true;
+
 
         if (jumping) {  // Nếu đang nhảy, cập nhật sprite nhảy đúng hướng
             currentTexture = textureJumpRight;
@@ -72,7 +76,7 @@ void Player::HandleInput(const Uint8* keyState) {
     }
 
     // Nếu nhân vật nhảy, chọn sprite nhảy đúng hướng
-    if (keyState[SDL_SCANCODE_SPACE] && onGround) {
+    if (keyState[SDL_SCANCODE_UP] && onGround) {
         jumping = true;
         velocityY = -jumpPower;
         onGround = false;
@@ -83,6 +87,20 @@ void Player::HandleInput(const Uint8* keyState) {
     // Nếu không nhảy, trở về sprite di chuyển
     if (!jumping) {
         currentTexture = facingLeft ? textureLeft : textureRight;
+    }
+    Uint32 currentTime = SDL_GetTicks();
+
+    if (keyState[SDL_SCANCODE_SPACE] && currentTime - lastShotTime >= shotCooldown) {
+        int offsetX = facingLeft ? -10 : PLAYER_WIDTH + 10;  // nòng súng nhô ra ngoài nhân vật
+        int offsetY = PLAYER_HEIGHT / 2 - 5;                 // tầm giữa thân người, chỉnh cho đẹp
+
+        int bulletX = x + offsetX;
+        int bulletY = 427;
+        int bulletSpeed = 15;
+        int vx = facingLeft ? -bulletSpeed : bulletSpeed;
+
+        bullets.push_back(new Bullet(bulletX, bulletY, vx, 0));
+        lastShotTime = currentTime;
     }
 }
 
@@ -128,9 +146,20 @@ void Player::Update(Map* map) {
         onGround = false;
     }
 
+    // ===== Xử lý bắn đạn =====
+
+
     if (x < 0) x = 0;
     if (x + PLAYER_WIDTH > MAP_COLS * TILE_SIZE)
         x = MAP_COLS * TILE_SIZE - PLAYER_WIDTH;
+    for (int i = 0; i < bullets.size(); ++i) {
+        bullets[i]->Update();
+        if (!bullets[i]->IsActive()) {
+            delete bullets[i];
+            bullets.erase(bullets.begin() + i);
+            --i;
+        }
+    }
 }
 
 void Player::Render(SDL_Renderer* renderer, SDL_Rect camera) {
@@ -149,6 +178,10 @@ void Player::Render(SDL_Renderer* renderer, SDL_Rect camera) {
     };
 
     SDL_RenderCopy(renderer, currentTexture, &src, &dst);
+    for (Bullet* b : bullets) {
+        b->Render(renderer);
+    }
+
 }
 
 Player::~Player() {
@@ -156,4 +189,6 @@ Player::~Player() {
     SDL_DestroyTexture(textureLeft);
     SDL_DestroyTexture(textureJumpRight);
     SDL_DestroyTexture(textureJumpLeft);
+    for (Bullet* b : bullets) delete b;
+    bullets.clear();
 }

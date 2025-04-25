@@ -32,7 +32,18 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="bullet.cpp" />
+		<Unit filename="bullet.h" />
+		<Unit filename="camera.cpp" />
+		<Unit filename="camera.h" />
+		<Unit filename="constants.h" />
+		<Unit filename="enermy.cpp" />
+		<Unit filename="enermy.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="map.cpp" />
+		<Unit filename="map.h" />
+		<Unit filename="player.cpp" />
+		<Unit filename="player.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

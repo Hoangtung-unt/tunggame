@@ -2,7 +2,7 @@
 #include "map.h"
 #include <iostream>
 using namespace std;
-Enemy::Enemy(SDL_Renderer* renderer, int x, int y) : x(x), y(y) {
+Enemy::Enemy(SDL_Renderer* renderer, int x, int y) : x(x), y(y), alive(true) {
     // Tải sprite sheet
     SDL_Surface* surface = IMG_Load("animation/enemy.png");
     if (!surface) {
@@ -26,6 +26,7 @@ Enemy::Enemy(SDL_Renderer* renderer, int x, int y) : x(x), y(y) {
     frameCount = 6;       // Tổng số frame
     frameDelay = 8;       // Thời gian giữa các frame
     frameDelayCounter = 0;
+    alive = true;
 }
 
 void Enemy::Update(int playerX, int playerY, Map* map) {
@@ -59,22 +60,22 @@ void Enemy::Update(int playerX, int playerY, Map* map) {
 }
 
 void Enemy::Render(SDL_Renderer* renderer, SDL_Rect camera) {
-    // Xác định vị trí frame hiện tại trên sprite sheet
+    if (!alive) return;
+
     SDL_Rect src = {
-        frame * FRAME_WIDTH, // Bắt đầu của frame theo chiều ngang
-        0,                   // Bắt đầu của frame theo chiều dọc
-        FRAME_WIDTH,         // Chiều rộng của frame
-        FRAME_HEIGHT         // Chiều cao của frame
+        frame * FRAME_WIDTH,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
     };
 
-    // Vị trí hiển thị trên màn hình
     SDL_Rect dst = {
-        x - camera.x,        // Tọa độ x tương đối với camera
-        y - camera.y,        // Tọa độ y tương đối với camera
-        FRAME_WIDTH,         // Chiều rộng của quái vật
-        FRAME_HEIGHT         // Chiều cao của quái vật
+        x - camera.x,
+        y - camera.y,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
     };
 
-    // Vẽ quái vật lên renderer
     SDL_RenderCopy(renderer, texture, &src, &dst);
 }
+

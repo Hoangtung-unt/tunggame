@@ -13,6 +13,13 @@ public:
 
     int GetX() const { return x; }
     int GetY() const { return y; }
+    SDL_Rect GetRect() const {
+        return { x, y, WIDTH, HEIGHT };
+    }
+
+    void Deactivate() {
+        active = false;
+    }
 
 private:
     int x, y;
