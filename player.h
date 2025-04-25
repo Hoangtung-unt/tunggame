@@ -7,16 +7,18 @@
 #include "constants.h"
 #include "bullet.h"
 #include <vector>
+#include "camera.h"  // Thêm vào để sử dụng class camera
 
 class Map;
 
 class Player {
 public:
-    Player(SDL_Renderer* renderer);
+    Player(SDL_Renderer* renderer, camera& camera);  // Thêm camera* vào constructor
     ~Player();
 
-    void HandleInput(const Uint8* keyState);
-    void Update(Map* map);
+    void HandleInput(const Uint8* keyState, camera& cam);  // Thêm camera vào HandleInput
+    void Update(Map* map, std::vector<Enemy*>& enemies);
+
     void Render(SDL_Renderer* renderer, SDL_Rect camera);
 
     int GetX() const { return x; }
@@ -27,8 +29,8 @@ public:
 private:
     SDL_Texture* textureRight;
     SDL_Texture* textureLeft;
-    SDL_Texture* textureJumpRight; // Thêm biến sprite nhảy phải
-    SDL_Texture* textureJumpLeft;  // Thêm biến sprite nhảy trái
+    SDL_Texture* textureJumpRight;
+    SDL_Texture* textureJumpLeft;
     SDL_Texture* currentTexture;
 
     int x, y;
@@ -43,8 +45,8 @@ private:
     bool facingLeft;
 
     // Nhảy
-    bool jumping;   // Kiểm tra trạng thái nhảy
-    int jumpPower;  // Lực nhảy
+    bool jumping;
+    int jumpPower;
 
     // Trọng lực & vận tốc Y
     int velocityY;
@@ -53,8 +55,8 @@ private:
     void UpdateAnimation();
 
     std::vector<Bullet*> bullets;
-    Uint32 lastShotTime;      // Thời gian bắn cuối cùng
-    Uint32 shotCooldown;      // Thời gian hồi giữa 2 lần bắn (ms)
+    Uint32 lastShotTime;
+    Uint32 shotCooldown;
 
 };
 

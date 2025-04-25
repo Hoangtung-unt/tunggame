@@ -1,8 +1,9 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>  // Thêm thư viện SDL_ttf
 #include <vector>
 #include <ctime>
-#include <iostream> // Thêm để sử dụng std::cout
+#include <iostream>
 #include "map.h"
 #include "camera.h"
 #include "player.h"
@@ -17,9 +18,60 @@ bool CheckCollision(const SDL_Rect& rect1, const SDL_Rect& rect2) {
              rect1.y >= rect2.y + rect2.h);  // Không chạm bên dưới
 }
 
+void ShowStartScreen(SDL_Renderer* renderer) {
+    TTF_Font* font = TTF_OpenFont("assets/fonts/my.font", 24);  // Đảm bảo đường dẫn đúng
+if (font == nullptr) {
+    std::cerr << "Error: " << TTF_GetError() << std::endl;  // Kiểm tra lỗi nếu không mở được font
+}
+
+    SDL_Color textColor = { 255, 255, 255 }; // Màu trắng
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Press ENTER to Start", textColor);
+    if (textSurface == NULL) {
+        std::cerr << "Unable to create text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        TTF_CloseFont(font);
+        return;
+    }
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (textTexture == NULL) {
+        std::cerr << "Unable to create texture from text surface! SDL Error: " << SDL_GetError() << std::endl;
+    }
+    SDL_FreeSurface(textSurface);
+
+    SDL_Rect textRect;
+    textRect.x = (SCREEN_WIDTH - textSurface->w) / 2; // Vị trí căn giữa
+    textRect.y = (SCREEN_HEIGHT - textSurface->h) / 2;
+    textRect.w = textSurface->w;
+    textRect.h = textSurface->h;
+
+    bool startGame = false;
+    while (!startGame) {
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_RenderPresent(renderer);
+
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                startGame = true; // Nếu đóng cửa sổ, thoát
+            }
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN) {
+                startGame = true; // Nhấn ENTER để bắt đầu
+            }
+        }
+    }
+
+    SDL_DestroyTexture(textTexture);
+    TTF_CloseFont(font);
+}
+
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
+    if (TTF_Init() == -1) {  // Khởi tạo SDL_ttf
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return 1;
+    }
 
     SDL_Window* window = SDL_CreateWindow("Scrolling Map + Camera",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -27,16 +79,14 @@ int main(int argc, char* argv[]) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    // Load map
-    Map map(renderer);
-
-    // Tạo player và camera
-    Player player(renderer);
     camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, MAP_COLS * TILE_SIZE, MAP_ROWS * TILE_SIZE);
-    // Khởi tạo random seed và sinh enemy
+    Map map(renderer);
+    Player player(renderer, camera);
+
     srand(static_cast<unsigned int>(time(NULL)));
     std::vector<Enemy*> enemies;
 
+    // Tạo các quái vật
     for (int i = 0; i < 10; ++i) {
         int randX = rand() % (MAP_COLS * TILE_SIZE);
         int randY = 0;
@@ -53,6 +103,9 @@ int main(int argc, char* argv[]) {
         enemies.push_back(new Enemy(renderer, randX, randY));
     }
 
+    // Hiển thị màn hình start
+    ShowStartScreen(renderer);
+
     bool running = true;
     SDL_Event e;
 
@@ -62,15 +115,15 @@ int main(int argc, char* argv[]) {
                 {running = false;}
         }
 
-        // Xử lý phím nhấn
         const Uint8* keyState = SDL_GetKeyboardState(NULL);
-        player.HandleInput(keyState);
-        player.Update(&map);
+        player.HandleInput(keyState, camera);
+        player.Update(&map, enemies);  // Thay vì player.Update(&map);
 
         // Cập nhật các quái vật
         for (Enemy* enemy : enemies) {
             enemy->Update(player.GetX(), player.GetY(), &map);
         }
+
         // Kiểm tra va chạm giữa nhân vật và quái vật
         SDL_Rect playerRect = { player.GetX(), player.GetY(), PLAYER_WIDTH, PLAYER_HEIGHT };
         for (Enemy* enemy : enemies) {
@@ -81,6 +134,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
         }
+
         // Kiểm tra va chạm đạn và quái vật
         for (Enemy* enemy : enemies) {
             if (!enemy->IsAlive()) continue;
@@ -88,19 +142,19 @@ int main(int argc, char* argv[]) {
             for (Bullet* bullet : player.GetBullets()) {
                 if (!bullet->IsActive()) continue;
 
-                if (CheckCollision(bullet->GetRect(), enemy->GetRect())) {
-                    enemy->SetAlive(false);
-                    bullet->Deactivate();
+                SDL_Rect enemyRect = enemy->GetRect();
+                if (CheckCollision(bullet->GetRect(), enemyRect)) {
+                    enemy->SetAlive(false); // Quái vật chết
+                    bullet->Deactivate();   // Đạn ngừng hoạt động
                     std::cout << "💥 Enemy trúng đạn tại: (" << enemy->GetX() << ", " << enemy->GetY() << ")\n";
-                    break;
+                    break; // Ngừng kiểm tra khi một đạn trúng đích
                 }
             }
         }
-        // Cập nhật camera theo nhân vật
+
         camera.Follow(player.GetX(), player.GetY());
 
-        // Vẽ màn hình
-        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255); // Xóa màn hình với màu xanh trời
+        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255); // Màu nền
         SDL_RenderClear(renderer);
 
         map.Render(camera.GetView());
@@ -116,10 +170,10 @@ int main(int argc, char* argv[]) {
         SDL_Delay(16); // ~60 FPS
     }
 
-    // Hiển thị thông báo Game Over trước khi kết thúc
-    SDL_Delay(2000); // Tạm dừng để hiển thị thông báo Game Over
+    // Tạm dừng để hiển thị thông báo Game Over
+    SDL_Delay(2000);
 
-    // Dọn bộ nhớ
+    // Giải phóng bộ nhớ
     for (Enemy* enemy : enemies) {
         delete enemy;
     }
@@ -127,6 +181,7 @@ int main(int argc, char* argv[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
+    TTF_Quit();  // Giải phóng SDL_ttf
     SDL_Quit();
 
     return 0;

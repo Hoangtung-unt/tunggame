@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-Player::Player(SDL_Renderer* renderer) {
+Player::Player(SDL_Renderer* renderer,camera& cam) {
     // Tải sprite di chuyển phải
     SDL_Surface* surfaceRight = IMG_Load("animation/player_right.png");
     SDL_SetColorKey(surfaceRight, SDL_TRUE, SDL_MapRGB(surfaceRight->format, 167, 175, 180));
@@ -45,13 +45,12 @@ Player::Player(SDL_Renderer* renderer) {
 
     velocityY = 0;
     onGround = false;
-    jumpPower = 15;
+    jumpPower = 20;
 
     lastShotTime = 0;
     shotCooldown = 300; // 300ms giữa mỗi lần bắn
 }
-
-void Player::HandleInput(const Uint8* keyState) {
+void Player::HandleInput(const Uint8* keyState, camera& cam) {
     moving = false;
 
     if (keyState[SDL_SCANCODE_RIGHT]) {
@@ -59,8 +58,7 @@ void Player::HandleInput(const Uint8* keyState) {
         facingLeft = false;
         moving = true;
 
-
-        if (jumping) {  // Nếu đang nhảy, cập nhật sprite nhảy đúng hướng
+        if (jumping) {
             currentTexture = textureJumpRight;
         }
     }
@@ -75,27 +73,23 @@ void Player::HandleInput(const Uint8* keyState) {
         }
     }
 
-    // Nếu nhân vật nhảy, chọn sprite nhảy đúng hướng
     if (keyState[SDL_SCANCODE_UP] && onGround) {
         jumping = true;
         velocityY = -jumpPower;
         onGround = false;
-
         currentTexture = facingLeft ? textureJumpLeft : textureJumpRight;
     }
 
-    // Nếu không nhảy, trở về sprite di chuyển
     if (!jumping) {
         currentTexture = facingLeft ? textureLeft : textureRight;
     }
+
     Uint32 currentTime = SDL_GetTicks();
 
     if (keyState[SDL_SCANCODE_SPACE] && currentTime - lastShotTime >= shotCooldown) {
-        int offsetX = facingLeft ? -10 : PLAYER_WIDTH + 10;  // nòng súng nhô ra ngoài nhân vật
-        int offsetY = PLAYER_HEIGHT / 2 - 5;                 // tầm giữa thân người, chỉnh cho đẹp
-
-        int bulletX = x + offsetX;
-        int bulletY = 427;
+        int offsetX = facingLeft ? -10 : PLAYER_WIDTH + 10;
+        int bulletX = x + offsetX - cam.GetView().x;  // Điều chỉnh vị trí bắn theo camera
+        int bulletY = y - cam.GetView().y;           // Điều chỉnh vị trí bắn theo camera
         int bulletSpeed = 15;
         int vx = facingLeft ? -bulletSpeed : bulletSpeed;
 
@@ -103,6 +97,7 @@ void Player::HandleInput(const Uint8* keyState) {
         lastShotTime = currentTime;
     }
 }
+
 
 void Player::UpdateAnimation() {
     if (moving && !jumping) {
@@ -116,7 +111,7 @@ void Player::UpdateAnimation() {
     }
 }
 
-void Player::Update(Map* map) {
+void Player::Update(Map* map, std::vector<Enemy*>& enemies) {
     UpdateAnimation();
 
     const int gravity = 1;
@@ -146,21 +141,22 @@ void Player::Update(Map* map) {
         onGround = false;
     }
 
-    // ===== Xử lý bắn đạn =====
-
-
-    if (x < 0) x = 0;
-    if (x + PLAYER_WIDTH > MAP_COLS * TILE_SIZE)
-        x = MAP_COLS * TILE_SIZE - PLAYER_WIDTH;
+    // Cập nhật các viên đạn và kiểm tra va chạm với quái vật
     for (int i = 0; i < bullets.size(); ++i) {
-        bullets[i]->Update();
+        bullets[i]->Update(enemies);
         if (!bullets[i]->IsActive()) {
             delete bullets[i];
             bullets.erase(bullets.begin() + i);
             --i;
         }
     }
+
+    // Xử lý giới hạn vị trí của người chơi
+    if (x < 0) x = 0;
+    if (x + PLAYER_WIDTH > MAP_COLS * TILE_SIZE)
+        x = MAP_COLS * TILE_SIZE - PLAYER_WIDTH;
 }
+
 
 void Player::Render(SDL_Renderer* renderer, SDL_Rect camera) {
     SDL_Rect src = {
@@ -181,8 +177,8 @@ void Player::Render(SDL_Renderer* renderer, SDL_Rect camera) {
     for (Bullet* b : bullets) {
         b->Render(renderer);
     }
-
 }
+
 
 Player::~Player() {
     SDL_DestroyTexture(textureRight);

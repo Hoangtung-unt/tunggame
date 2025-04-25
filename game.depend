@@ -1,7 +1,8 @@
 # depslib dependency file v1.0
-1745599144 source:c:\c++\game\main.cpp
+1745620536 source:c:\c++\game\main.cpp
 	<SDL.h>
 	<SDL_image.h>
+	<SDL_ttf.h>
 	<vector>
 	<ctime>
 	<iostream>
@@ -32,36 +33,39 @@
 1744621826 c:\c++\game\camera.h
 	<SDL.h>
 
-1745599144 source:c:\c++\game\player.cpp
+1745613535 source:c:\c++\game\player.cpp
 	"player.h"
 	"map.h"
 	<iostream>
 
-1745599175 c:\c++\game\player.h
+1745613847 c:\c++\game\player.h
 	<SDL.h>
 	<SDL_image.h>
 	<string>
 	"constants.h"
 	"bullet.h"
 	<vector>
+	"camera.h"
 
 1745587368 c:\c++\game\constants.h
 
-1745599144 source:c:\c++\game\enermy.cpp
+1745615674 source:c:\c++\game\enermy.cpp
 	"enermy.h"
-	"map.h"
 	<iostream>
 
-1745599144 c:\c++\game\enermy.h
+1745615554 c:\c++\game\enermy.h
 	<SDL.h>
 	<SDL_image.h>
 	"constants.h"
 	"map.h"
 
-1745588320 source:c:\c++\game\bullet.cpp
+1745615095 source:c:\c++\game\bullet.cpp
 	"bullet.h"
 	"constants.h"
+	"enermy.h"
+	<iostream>
 
-1745599144 c:\c++\game\bullet.h
+1745615657 c:\c++\game\bullet.h
 	<SDL.h>
+	<vector>
 
