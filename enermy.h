@@ -5,11 +5,11 @@
 #include <SDL_image.h>
 #include "constants.h"
 #include <SDL.h>
-
+#include "map.h"
 class Enemy {
 public:
     Enemy(SDL_Renderer* renderer, int x, int y);
-    void Update();
+    void Update(int playerX, int playerY, Map* map);
     void Render(SDL_Renderer* renderer, SDL_Rect camera);
 
     int GetX() const { return x; }
@@ -24,7 +24,7 @@ private:
     int frameDelay;
     int frameDelayCounter;
     int currentFrame = 0;
-    const int FRAME_WIDTH = 74.95;
+    const int FRAME_WIDTH = 70;
     const int FRAME_HEIGHT = 80;
 };
 

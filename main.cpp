@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
         for (int y = 0; y < MAP_ROWS; ++y) {
             int tile = map.GetTile(randX / TILE_SIZE, y);
             if (tile == 1 || tile == 2) {
-                randY = y * TILE_SIZE - 32; // Đặt enemy ngay trên tile đó
+                randY = y * TILE_SIZE - 80; // Đặt enemy ngay trên tile đó
                 break;
             }
         }
@@ -60,8 +60,8 @@ int main(int argc, char* argv[]) {
         player.Update(&map);
 
         for (Enemy* enemy : enemies) {
-            enemy->Update();
-        }
+    enemy->Update(player.GetX(), player.GetY(), &map);
+}
 
         // Cập nhật camera theo nhân vật
         camera.Follow(player.GetX(), player.GetY());

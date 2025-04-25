@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1745550325 source:c:\c++\game\main.cpp
+1745574651 source:c:\c++\game\main.cpp
 	<SDL.h>
 	<SDL_image.h>
 	<vector>
@@ -44,13 +44,15 @@
 
 1745550789 c:\c++\game\constants.h
 
-1745552118 source:c:\c++\game\enermy.cpp
+1745581479 source:c:\c++\game\enermy.cpp
 	"enermy.h"
 	"map.h"
+	<iostream>
 
-1745552006 c:\c++\game\enermy.h
+1745581960 c:\c++\game\enermy.h
 	<SDL.h>
 	<SDL_image.h>
 	"constants.h"
 	<SDL.h>
+	"map.h"
 
