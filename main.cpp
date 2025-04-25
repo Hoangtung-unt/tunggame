@@ -2,11 +2,20 @@
 #include <SDL_image.h>
 #include <vector>
 #include <ctime>
+#include <iostream> // Thêm để sử dụng std::cout
 #include "map.h"
 #include "camera.h"
 #include "player.h"
-#include "enermy.h" // 👈 Thêm dòng này
+#include "enermy.h" // 👈 Đã có
 #include "constants.h"
+
+// Hàm kiểm tra va chạm
+bool CheckCollision(const SDL_Rect& rect1, const SDL_Rect& rect2) {
+    return !(rect1.x + rect1.w <= rect2.x || // Không chạm bên trái
+             rect1.x >= rect2.x + rect2.w || // Không chạm bên phải
+             rect1.y + rect1.h <= rect2.y || // Không chạm bên trên
+             rect1.y >= rect2.y + rect2.h);  // Không chạm bên dưới
+}
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
@@ -59,15 +68,27 @@ int main(int argc, char* argv[]) {
         player.HandleInput(keyState);
         player.Update(&map);
 
+        // Cập nhật các quái vật
         for (Enemy* enemy : enemies) {
-    enemy->Update(player.GetX(), player.GetY(), &map);
-}
+            enemy->Update(player.GetX(), player.GetY(), &map);
+        }
+
+        // Kiểm tra va chạm giữa nhân vật và quái vật
+        SDL_Rect playerRect = { player.GetX(), player.GetY(), PLAYER_WIDTH, PLAYER_HEIGHT };
+        for (Enemy* enemy : enemies) {
+            SDL_Rect enemyRect = { enemy->GetX(), enemy->GetY(), FRAME_WIDTH, FRAME_HEIGHT };
+            if (CheckCollision(playerRect, enemyRect)) {
+                std::cout << "Game Over: Quái vật đã chạm vào nhân vật!" << std::endl;
+                running = false; // Kết thúc trò chơi
+                break;
+            }
+        }
 
         // Cập nhật camera theo nhân vật
         camera.Follow(player.GetX(), player.GetY());
 
         // Vẽ màn hình
-        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255);
+        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255); // Xóa màn hình với màu xanh trời
         SDL_RenderClear(renderer);
 
         map.Render(camera.GetView());
@@ -80,8 +101,11 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(16); // ~60fps
+        SDL_Delay(16); // ~60 FPS
     }
+
+    // Hiển thị thông báo Game Over trước khi kết thúc
+    SDL_Delay(2000); // Tạm dừng để hiển thị thông báo Game Over
 
     // Dọn bộ nhớ
     for (Enemy* enemy : enemies) {

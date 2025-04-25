@@ -24,8 +24,7 @@ private:
     int frameDelay;
     int frameDelayCounter;
     int currentFrame = 0;
-    const int FRAME_WIDTH = 70;
-    const int FRAME_HEIGHT = 80;
+
 };
 
 #endif
