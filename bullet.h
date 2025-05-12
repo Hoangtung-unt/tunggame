@@ -3,15 +3,14 @@
 
 #include <SDL.h>
 #include <vector>
-
+#include "constants.h"
 class Enemy;
 
 class Bullet {
 public:
     Bullet(int x, int y, int speedX, int speedY);
     void Update(std::vector<Enemy*>& enemies);
-
-    void Render(SDL_Renderer* renderer);
+    void Render(SDL_Renderer* renderer, SDL_Rect camera);
     bool IsActive() const { return active; }
     void SetActive(bool isActive) { active = isActive; }
 
@@ -25,9 +24,6 @@ private:
     int x, y;
     int speedX, speedY;
     bool active;
-    int WIDTH = 20;
-    int HEIGHT = 20;
-
     bool CheckCollision(Enemy* enemy);
 };
 

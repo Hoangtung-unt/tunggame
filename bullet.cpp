@@ -28,13 +28,15 @@ bool Bullet::CheckCollision(Enemy* enemy) {
     return SDL_HasIntersection(&bulletRect, &enemyRect);
 }
 
-void Bullet::Render(SDL_Renderer* renderer) {
+void Bullet::Render(SDL_Renderer* renderer, SDL_Rect camera) {
     if (!active) return;
 
-    SDL_Rect rect = { x, y, WIDTH, HEIGHT };
+    SDL_Rect rect = { x - camera.x, y - camera.y, WIDTH, HEIGHT };
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderFillRect(renderer, &rect);
 }
+
+
 
 SDL_Rect Bullet::GetRect() const {
     return { x, y, WIDTH, HEIGHT };

@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-Enemy::Enemy(SDL_Renderer* renderer, int x, int y) : x(x), y(y), alive(true) {
+Enemy::Enemy(SDL_Renderer* renderer, int x, Map* map) : x(x), alive(true) {
     SDL_Surface* surface = IMG_Load("animation/enemy.png");
     if (!surface) {
         cout << "Không thể tải ảnh enemy.png: " << IMG_GetError() << endl;
@@ -10,9 +10,9 @@ Enemy::Enemy(SDL_Renderer* renderer, int x, int y) : x(x), y(y), alive(true) {
     }
 
     SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 78, 79, 74));
-
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+
     if (!texture) {
         cout << "Không thể tạo Texture từ Surface: " << SDL_GetError() << endl;
         return;
@@ -22,9 +22,16 @@ Enemy::Enemy(SDL_Renderer* renderer, int x, int y) : x(x), y(y), alive(true) {
     frameCount = 6;
     frameDelay = 8;
     frameDelayCounter = 0;
-    alive = true;
-}
 
+    y = 0;
+    for (int ty = 0; ty < MAP_ROWS; ++ty) {
+        int tile = map->GetTile(x / TILE_SIZE, ty);
+        if (tile == 1 || tile == 2) {
+            y = ty * TILE_SIZE - FRAME_HEIGHT;
+            break;
+        }
+    }
+}
 
 void Enemy::Update(int playerX, int playerY, Map* map) {
     frameDelayCounter++;

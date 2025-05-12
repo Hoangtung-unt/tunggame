@@ -5,7 +5,7 @@
 Map::Map(SDL_Renderer* renderer) : renderer(renderer) {
     LoadTile(1, "assets/3.png");
     LoadTile(2, "assets/2.png");
-
+    LoadTile(5, "assets/5.png");
 
     LoadMap("assets/map.txt");
 }
@@ -18,10 +18,14 @@ Map::~Map() {
 
 void Map::LoadTile(int id, const std::string& path) {
     SDL_Surface* surface = IMG_Load(path.c_str());
+    SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 167, 175, 180));
+
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+
     tileTextures[id] = texture;
 }
+
 
 void Map::LoadMap(const std::string& filename) {
     std::ifstream file(filename);

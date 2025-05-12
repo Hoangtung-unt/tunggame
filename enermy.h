@@ -8,7 +8,7 @@
 
 class Enemy {
 public:
-    Enemy(SDL_Renderer* renderer, int x, int y);
+    Enemy(SDL_Renderer* renderer, int x, Map* map);
 
     void Update(int playerX, int playerY, Map* map);
     void Render(SDL_Renderer* renderer, SDL_Rect camera);

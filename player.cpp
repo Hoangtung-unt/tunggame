@@ -79,8 +79,8 @@ void Player::HandleInput(const Uint8* keyState, camera& cam) {
 
     if (keyState[SDL_SCANCODE_SPACE] && currentTime - lastShotTime >= shotCooldown) {
         int offsetX = facingLeft ? -10 : PLAYER_WIDTH + 10;
-        int bulletX = x + offsetX - cam.GetView().x;
-        int bulletY = y - cam.GetView().y;
+        int bulletX = x + offsetX;
+        int bulletY = y;
         int bulletSpeed = 15;
         int vx = facingLeft ? -bulletSpeed : bulletSpeed;
 
@@ -88,6 +88,7 @@ void Player::HandleInput(const Uint8* keyState, camera& cam) {
         lastShotTime = currentTime;
     }
 }
+
 
 
 void Player::UpdateAnimation() {
@@ -162,8 +163,9 @@ void Player::Render(SDL_Renderer* renderer, SDL_Rect camera) {
     };
 
     SDL_RenderCopy(renderer, currentTexture, &src, &dst);
+
     for (Bullet* b : bullets) {
-        b->Render(renderer);
+        b->Render(renderer, camera);
     }
 }
 

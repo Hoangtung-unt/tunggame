@@ -10,7 +10,6 @@
 #include "enermy.h"
 #include "constants.h"
 
-// Hàm kiểm tra va chạm
 bool CheckCollision(const SDL_Rect& rect1, const SDL_Rect& rect2) {
     return !(rect1.x + rect1.w <= rect2.x ||
              rect1.x >= rect2.x + rect2.w ||
@@ -19,30 +18,28 @@ bool CheckCollision(const SDL_Rect& rect1, const SDL_Rect& rect2) {
 }
 
 void ShowStartScreen(SDL_Renderer* renderer) {
-    TTF_Font* font = TTF_OpenFont("assets/fonts/my.font", 24);
-if (font == nullptr) {
-    std::cerr << "Error: " << TTF_GetError() << std::endl;
-}
+    TTF_Font* font = TTF_OpenFont("assets/my.font.ttf", 24);
+    if (!font) {
+        std::cerr << "Error: " << TTF_GetError() << std::endl;
+        return;
+    }
 
     SDL_Color textColor = { 255, 255, 255 };
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Press ENTER to Start", textColor);
-    if (textSurface == NULL) {
+    if (!textSurface) {
         std::cerr << "Unable to create text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
         TTF_CloseFont(font);
         return;
     }
 
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (textTexture == NULL) {
-        std::cerr << "Unable to create texture from text surface! SDL Error: " << SDL_GetError() << std::endl;
-    }
     SDL_FreeSurface(textSurface);
 
     SDL_Rect textRect;
-    textRect.x = (SCREEN_WIDTH - textSurface->w) / 2;
-    textRect.y = (SCREEN_HEIGHT - textSurface->h) / 2;
-    textRect.w = textSurface->w;
-    textRect.h = textSurface->h;
+    textRect.x = (SCREEN_WIDTH - 300) / 2;
+    textRect.y = (SCREEN_HEIGHT - 50) / 2;
+    textRect.w = 300;
+    textRect.h = 50;
 
     bool startGame = false;
     while (!startGame) {
@@ -52,14 +49,78 @@ if (font == nullptr) {
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                startGame = true;
-            }
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN) {
-                startGame = true;
-            }
+            if (e.type == SDL_QUIT) startGame = true;
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN) startGame = true;
         }
     }
+
+    SDL_DestroyTexture(textTexture);
+    TTF_CloseFont(font);
+}
+
+void ShowGameOverScreen(SDL_Renderer* renderer) {
+    TTF_Font* font = TTF_OpenFont("assets/my.font.ttf", 48);
+    if (!font) {
+        std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Color textColor = {255, 0, 0};
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Game Over", textColor);
+    if (!textSurface) {
+        std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        TTF_CloseFont(font);
+        return;
+    }
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+
+    SDL_Rect textRect;
+    textRect.w = 300;
+    textRect.h = 80;
+    textRect.x = (SCREEN_WIDTH - textRect.w) / 2;
+    textRect.y = (SCREEN_HEIGHT - textRect.h) / 2;
+
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+    SDL_RenderPresent(renderer);
+
+    SDL_Delay(2000);
+
+    SDL_DestroyTexture(textTexture);
+    TTF_CloseFont(font);
+}
+
+void ShowYouWinScreen(SDL_Renderer* renderer) {
+    TTF_Font* font = TTF_OpenFont("assets/my.font.ttf", 48);
+    if (!font) {
+        std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Color textColor = { 0, 255, 0 };
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YOU WIN!", textColor);
+    if (!textSurface) {
+        std::cerr << "Unable to render win text! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        TTF_CloseFont(font);
+        return;
+    }
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+
+    SDL_Rect textRect;
+    textRect.w = 300;
+    textRect.h = 80;
+    textRect.x = (SCREEN_WIDTH - textRect.w) / 2;
+    textRect.y = (SCREEN_HEIGHT - textRect.h) / 2;
+
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+    SDL_RenderPresent(renderer);
+
+    SDL_Delay(2000);
 
     SDL_DestroyTexture(textTexture);
     TTF_CloseFont(font);
@@ -85,21 +146,13 @@ int main(int argc, char* argv[]) {
 
     srand(static_cast<unsigned int>(time(NULL)));
     std::vector<Enemy*> enemies;
-
-    for (int i = 0; i < 10; ++i) {
-        int randX = rand() % (MAP_COLS * TILE_SIZE);
-        int randY = 0;
-
-        for (int y = 0; y < MAP_ROWS; ++y) {
-            int tile = map.GetTile(randX / TILE_SIZE, y);
-            if (tile == 1 || tile == 2) {
-                randY = y * TILE_SIZE - 80;
-                break;
-            }
-        }
-
-        enemies.push_back(new Enemy(renderer, randX, randY));
+    for (int i = 0; i < 5; ++i) {
+        int randX = SCREEN_WIDTH + rand() % 300;
+        enemies.push_back(new Enemy(renderer, randX, &map));
     }
+
+    Uint32 lastSpawnTime = SDL_GetTicks();
+    const Uint32 spawnInterval = 2000;
 
     ShowStartScreen(renderer);
 
@@ -109,24 +162,22 @@ int main(int argc, char* argv[]) {
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT)
-                {running = false;}
+                running = false;
+        }
+
+        Uint32 currentTime = SDL_GetTicks();
+        if (currentTime > lastSpawnTime + spawnInterval) {
+            int randX = SCREEN_WIDTH + rand() % 300;
+            enemies.push_back(new Enemy(renderer, randX, &map));
+            lastSpawnTime = currentTime;
         }
 
         const Uint8* keyState = SDL_GetKeyboardState(NULL);
         player.HandleInput(keyState, camera);
         player.Update(&map, enemies);
+
         for (Enemy* enemy : enemies) {
             enemy->Update(player.GetX(), player.GetY(), &map);
-        }
-
-        SDL_Rect playerRect = { player.GetX(), player.GetY(), PLAYER_WIDTH, PLAYER_HEIGHT };
-        for (Enemy* enemy : enemies) {
-            SDL_Rect enemyRect = { enemy->GetX(), enemy->GetY(), FRAME_WIDTH, FRAME_HEIGHT };
-            if (CheckCollision(playerRect, enemyRect)) {
-                std::cout << "Game Over: Quái vật đã chạm vào nhân vật!" << std::endl;
-                running = false;
-                break;
-            }
         }
 
         for (Enemy* enemy : enemies) {
@@ -135,14 +186,52 @@ int main(int argc, char* argv[]) {
             for (Bullet* bullet : player.GetBullets()) {
                 if (!bullet->IsActive()) continue;
 
-                SDL_Rect enemyRect = enemy->GetRect();
-                if (CheckCollision(bullet->GetRect(), enemyRect)) {
+                if (CheckCollision(bullet->GetRect(), enemy->GetRect())) {
                     enemy->SetAlive(false);
                     bullet->Deactivate();
                     std::cout << "💥 Enemy trúng đạn tại: (" << enemy->GetX() << ", " << enemy->GetY() << ")\n";
                     break;
                 }
             }
+        }
+
+        for (auto it = enemies.begin(); it != enemies.end(); ) {
+            if (!(*it)->IsAlive()) {
+                delete *it;
+                it = enemies.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        auto& bullets = player.GetBullets();
+        for (auto it = bullets.begin(); it != bullets.end(); ) {
+            if (!(*it)->IsActive()) {
+                delete *it;
+                it = bullets.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        SDL_Rect playerRect = { player.GetX(), player.GetY(), PLAYER_WIDTH, PLAYER_HEIGHT };
+        for (Enemy* enemy : enemies) {
+            if (CheckCollision(playerRect, enemy->GetRect())) {
+                std::cout << "Game Over: Quái vật đã chạm vào nhân vật!" << std::endl;
+
+                ShowGameOverScreen(renderer);
+
+                running = false;
+                break;
+            }
+        }
+        int frontTileX = (player.GetX() + PLAYER_WIDTH) / TILE_SIZE;
+        int midTileY = (player.GetY() + PLAYER_HEIGHT / 2) / TILE_SIZE;
+        if (map.GetTile(frontTileX, midTileY) == 5) {
+            std::cout << "YOU WIN: Nhân vật đã đến đích!\n";
+            ShowYouWinScreen(renderer);
+            running = false;
+            continue;
         }
 
         camera.Follow(player.GetX(), player.GetY());
@@ -163,7 +252,9 @@ int main(int argc, char* argv[]) {
         SDL_Delay(16); // ~60 FPS
     }
 
-    SDL_Delay(2000);
+    for (Enemy* enemy : enemies) {
+        delete enemy;
+    }
 
     for (Enemy* enemy : enemies) {
         delete enemy;

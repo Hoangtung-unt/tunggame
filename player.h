@@ -7,7 +7,7 @@
 #include "constants.h"
 #include "bullet.h"
 #include <vector>
-#include "camera.h"  // Thêm vào để sử dụng class camera
+#include "camera.h"
 
 class Map;
 
@@ -24,7 +24,7 @@ public:
     int GetX() const { return x; }
     int GetY() const { return y; }
 
-    const std::vector<Bullet*>& GetBullets() const { return bullets; }
+    std::vector<Bullet*>& GetBullets() { return bullets; }
 
 private:
     SDL_Texture* textureRight;
